@@ -36,9 +36,9 @@ namespace FindTheMonkey
 			NSUuid monkeyUUID = new NSUuid (uuid);
 			CLBeaconRegion beaconRegion = new CLBeaconRegion (monkeyUUID, monkeyId);
 
-//			beaconRegion.NotifyEntryStateOnDisplay = true;
-//			beaconRegion.NotifyOnEntry = true;
-//			beaconRegion.NotifyOnExit = true;
+			beaconRegion.NotifyEntryStateOnDisplay = true;
+			beaconRegion.NotifyOnEntry = true;
+			beaconRegion.NotifyOnExit = true;
 
 			if (!UserInterfaceIdiomIsPhone) {
 
