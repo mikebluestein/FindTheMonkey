@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FindTheMonkey", "FindTheMonkey\FindTheMonkey.csproj", "{B0F46FC9-D486-465F-A120-A9D58E414DEA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|iPhoneSimulator = Debug|iPhoneSimulator
+		Release|iPhoneSimulator = Release|iPhoneSimulator
+		Debug|iPhone = Debug|iPhone
+		Release|iPhone = Release|iPhone
+		Ad-Hoc|iPhone = Ad-Hoc|iPhone
+		AppStore|iPhone = AppStore|iPhone
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B0F46FC9-D486-465F-A120-A9D58E414DEA}.Ad-Hoc|iPhone.ActiveCfg = Ad-Hoc|iPhone
+		{B0F46FC9-D486-465F-A120-A9D58E414DEA}.Ad-Hoc|iPhone.Build.0 = Ad-Hoc|iPhone
+		{B0F46FC9-D486-465F-A120-A9D58E414DEA}.AppStore|iPhone.ActiveCfg = AppStore|iPhone
+		{B0F46FC9-D486-465F-A120-A9D58E414DEA}.AppStore|iPhone.Build.0 = AppStore|iPhone
+		{B0F46FC9-D486-465F-A120-A9D58E414DEA}.Debug|iPhone.ActiveCfg = Debug|iPhone
+		{B0F46FC9-D486-465F-A120-A9D58E414DEA}.Debug|iPhone.Build.0 = Debug|iPhone
+		{B0F46FC9-D486-465F-A120-A9D58E414DEA}.Debug|iPhoneSimulator.ActiveCfg = Debug|iPhoneSimulator
+		{B0F46FC9-D486-465F-A120-A9D58E414DEA}.Debug|iPhoneSimulator.Build.0 = Debug|iPhoneSimulator
+		{B0F46FC9-D486-465F-A120-A9D58E414DEA}.Release|iPhone.ActiveCfg = Release|iPhone
+		{B0F46FC9-D486-465F-A120-A9D58E414DEA}.Release|iPhone.Build.0 = Release|iPhone
+		{B0F46FC9-D486-465F-A120-A9D58E414DEA}.Release|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
+		{B0F46FC9-D486-465F-A120-A9D58E414DEA}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = FindTheMonkey\FindTheMonkey.csproj
+	EndGlobalSection
+EndGlobal
