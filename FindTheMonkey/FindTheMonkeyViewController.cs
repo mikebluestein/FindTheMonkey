@@ -5,6 +5,7 @@ using MonoTouch.UIKit;
 using MonoTouch.CoreBluetooth;
 using MonoTouch.CoreLocation;
 using MonoTouch.CoreFoundation;
+using MonoTouch.AVFoundation;
 
 namespace FindTheMonkey
 {
@@ -20,6 +21,10 @@ namespace FindTheMonkey
 		CBPeripheralManager peripheralMgr;
 		BTPeripheralDelegate peripheralDelegate;
 		CLLocationManager locationMgr;
+		CLProximity previousProximity;
+
+		float volume = 0.5f;
+		float pitch = 1.0f;
 
 		public FindTheMonkeyViewController () : base (UserInterfaceIdiomIsPhone ? "FindTheMonkeyViewController_iPhone" : "FindTheMonkeyViewController_iPad", null)
 		{
@@ -33,8 +38,9 @@ namespace FindTheMonkey
 		public override void ViewDidLoad ()
 		{
 			base.ViewDidLoad ();
-			NSUuid monkeyUUID = new NSUuid (uuid);
-			CLBeaconRegion beaconRegion = new CLBeaconRegion (monkeyUUID, monkeyId);
+
+			var monkeyUUID = new NSUuid (uuid);
+			var beaconRegion = new CLBeaconRegion (monkeyUUID, monkeyId);
 
 			beaconRegion.NotifyEntryStateOnDisplay = true;
 			beaconRegion.NotifyOnEntry = true;
@@ -43,7 +49,7 @@ namespace FindTheMonkey
 			if (!UserInterfaceIdiomIsPhone) {
 
 				//power - the received signal strength indicator (RSSI) value (measured in decibels) of the beacon from one meter away
-				NSNumber power = new NSNumber (-59);
+				var power = new NSNumber (-59);
 				NSMutableDictionary peripheralData = beaconRegion.GetPeripheralData (power);
 				peripheralDelegate = new BTPeripheralDelegate ();
 				peripheralMgr = new CBPeripheralManager (peripheralDelegate, DispatchQueue.DefaultGlobalQueue);
@@ -51,6 +57,8 @@ namespace FindTheMonkey
 				peripheralMgr.StartAdvertising (peripheralData);
 
 			} else {
+
+				InitPitchAndVolume ();
 
 				locationMgr = new CLLocationManager ();
 
@@ -65,31 +73,76 @@ namespace FindTheMonkey
 					if (e.Beacons.Length > 0) {
 
 						CLBeacon beacon = e.Beacons [0];
+						string message = "";
 
 						switch (beacon.Proximity) {
 						case CLProximity.Immediate:
-							monkeyStatusLabel.Text = "You found the monkey!";
+							message = "You found the monkey!";
+							monkeyStatusLabel.Text = message;
 							View.BackgroundColor = UIColor.Green;
 							break;
 						case CLProximity.Near:
-							monkeyStatusLabel.Text = "You're getting warmer";
+							message = "You're getting warmer";
+							monkeyStatusLabel.Text = message;
 							View.BackgroundColor = UIColor.Yellow;
 							break;
 						case CLProximity.Far:
-							monkeyStatusLabel.Text = "You're freezing cold";
+							message = "You're freezing cold";
+							monkeyStatusLabel.Text = message;
 							View.BackgroundColor = UIColor.Blue;
 							break;
 						case CLProximity.Unknown:
-							monkeyStatusLabel.Text = "I'm not sure how close you are to the monkey";
+							message = "I'm not sure how close you are to the monkey";;
+							monkeyStatusLabel.Text = message;
 							View.BackgroundColor = UIColor.Gray;
 							break;
 						}
+
+						if(previousProximity != beacon.Proximity){
+							Speak (message);
+						}
+						previousProximity = beacon.Proximity;
 					}
 				};
 
 				locationMgr.StartMonitoring (beaconRegion);
 				locationMgr.StartRangingBeacons (beaconRegion);
 			}
+		}
+
+		void Speak (string text)
+		{
+			var speechSynthesizer = new AVSpeechSynthesizer ();
+
+//			var voices = AVSpeechSynthesisVoice.GetSpeechVoices ();
+
+			var speechUtterance = new AVSpeechUtterance (text) {
+				Rate = AVSpeechUtterance.MaximumSpeechRate/4,
+				Voice = AVSpeechSynthesisVoice.FromLanguage ("en-AU"),
+				Volume = volume,
+				PitchMultiplier = pitch
+			};
+
+			speechSynthesizer.SpeakUtterance (speechUtterance);
+		}
+
+		void InitPitchAndVolume ()
+		{
+			volumeSlider.MinValue = 0;
+			volumeSlider.MaxValue = 1.0f;
+			volumeSlider.SetValue (volume, false);
+
+			pitchSlider.MinValue = 0.5f;
+			pitchSlider.MaxValue = 2.0f;
+			pitchSlider.SetValue (pitch, false);
+
+			volumeSlider.ValueChanged += (sender, e) => {
+				volume = volumeSlider.Value;
+			};
+
+			pitchSlider.ValueChanged += (sender, e) => {
+				pitch = volumeSlider.Value;
+			};
 		}
 
 		class BTPeripheralDelegate : CBPeripheralManagerDelegate

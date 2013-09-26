@@ -17,6 +17,12 @@ namespace FindTheMonkey
 
 		[Outlet]
 		MonoTouch.UIKit.UILabel monkeyStatusLabel { get; set; }
+
+		[Outlet]
+		MonoTouch.UIKit.UISlider pitchSlider { get; set; }
+
+		[Outlet]
+		MonoTouch.UIKit.UISlider volumeSlider { get; set; }
 		
 		void ReleaseDesignerOutlets ()
 		{
@@ -28,6 +34,16 @@ namespace FindTheMonkey
 			if (monkeyStatusLabel != null) {
 				monkeyStatusLabel.Dispose ();
 				monkeyStatusLabel = null;
+			}
+
+			if (pitchSlider != null) {
+				pitchSlider.Dispose ();
+				pitchSlider = null;
+			}
+
+			if (volumeSlider != null) {
+				volumeSlider.Dispose ();
+				volumeSlider = null;
 			}
 		}
 	}
