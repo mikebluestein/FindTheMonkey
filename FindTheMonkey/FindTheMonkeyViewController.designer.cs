@@ -19,6 +19,9 @@ namespace FindTheMonkey
 		MonoTouch.UIKit.UILabel monkeyStatusLabel { get; set; }
 
 		[Outlet]
+		MonoTouch.UIKit.UIButton openMultipeerBrowser { get; set; }
+
+		[Outlet]
 		MonoTouch.UIKit.UISlider pitchSlider { get; set; }
 
 		[Outlet]
@@ -44,6 +47,11 @@ namespace FindTheMonkey
 			if (volumeSlider != null) {
 				volumeSlider.Dispose ();
 				volumeSlider = null;
+			}
+
+			if (openMultipeerBrowser != null) {
+				openMultipeerBrowser.Dispose ();
+				openMultipeerBrowser = null;
 			}
 		}
 	}

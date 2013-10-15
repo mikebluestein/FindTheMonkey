@@ -6,6 +6,7 @@ using MonoTouch.CoreBluetooth;
 using MonoTouch.CoreLocation;
 using MonoTouch.CoreFoundation;
 using MonoTouch.AVFoundation;
+using MonoTouch.MultipeerConnectivity;
 
 namespace FindTheMonkey
 {
@@ -22,7 +23,6 @@ namespace FindTheMonkey
 		BTPeripheralDelegate peripheralDelegate;
 		CLLocationManager locationMgr;
 		CLProximity previousProximity;
-
 		float volume = 0.5f;
 		float pitch = 1.0f;
 
@@ -38,6 +38,14 @@ namespace FindTheMonkey
 		public override void ViewDidLoad ()
 		{
 			base.ViewDidLoad ();
+
+			if (!UserInterfaceIdiomIsPhone) {
+				openMultipeerBrowser.TouchUpInside += (sender, e) => {
+					StartMultipeerBrowser ();
+				};
+			} else {
+				StartMultipeerAdvertiser ();
+			}
 
 			var monkeyUUID = new NSUuid (uuid);
 			var beaconRegion = new CLBeaconRegion (monkeyUUID, monkeyId);
@@ -92,14 +100,18 @@ namespace FindTheMonkey
 							View.BackgroundColor = UIColor.Blue;
 							break;
 						case CLProximity.Unknown:
-							message = "I'm not sure how close you are to the monkey";;
+							message = "I'm not sure how close you are to the monkey";
 							monkeyStatusLabel.Text = message;
 							View.BackgroundColor = UIColor.Gray;
 							break;
 						}
 
-						if(previousProximity != beacon.Proximity){
+						if (previousProximity != beacon.Proximity) {
 							Speak (message);
+
+							// demo send message using multipeer connectivity
+							if (beacon.Proximity == CLProximity.Immediate)
+								SendMessage ();
 						}
 						previousProximity = beacon.Proximity;
 					}
@@ -117,7 +129,7 @@ namespace FindTheMonkey
 //			var voices = AVSpeechSynthesisVoice.GetSpeechVoices ();
 
 			var speechUtterance = new AVSpeechUtterance (text) {
-				Rate = AVSpeechUtterance.MaximumSpeechRate/4,
+				Rate = AVSpeechUtterance.MaximumSpeechRate / 4,
 				Voice = AVSpeechSynthesisVoice.FromLanguage ("en-AU"),
 				Volume = volume,
 				PitchMultiplier = pitch
@@ -144,6 +156,102 @@ namespace FindTheMonkey
 				pitch = volumeSlider.Value;
 			};
 		}
+
+		#region Multipeer Connectivity Demo
+		MCSession session;
+		MCPeerID peer;
+		MCBrowserViewController browser;
+		MCAdvertiserAssistant assistant;
+		MySessionDelegate sessionDelegate = new MySessionDelegate ();
+		MyBrowserDelegate browserDelegate = new MyBrowserDelegate ();
+		NSDictionary dict = new NSDictionary ();
+		static readonly string serviceType = "FindTheMonkey";
+
+		void StartMultipeerAdvertiser ()
+		{
+			peer = new MCPeerID ("Player1");
+			session = new MCSession (peer);
+			session.Delegate = sessionDelegate;
+			assistant = new MCAdvertiserAssistant (serviceType, dict, session); 
+			assistant.Start ();
+		}
+
+		void StartMultipeerBrowser ()
+		{
+			peer = new MCPeerID ("Monkey");
+			session = new MCSession (peer);
+			session.Delegate = sessionDelegate;
+			browser = new MCBrowserViewController (serviceType, session);
+			browser.Delegate = browserDelegate;
+			browser.ModalPresentationStyle = UIModalPresentationStyle.FormSheet;
+			this.PresentViewController (browser, true, null);	
+		}
+
+		void SendMessage ()
+		{
+			var message = NSData.FromString (
+				String.Format ("{0} found the monkey", peer.DisplayName));
+			NSError error;
+			session.SendData (message, session.ConnectedPeers, 
+				MCSessionSendDataMode.Reliable, out error);
+		}
+
+		class MySessionDelegate : MCSessionDelegate
+		{
+			public override void DidChangeState (MCSession session, MCPeerID peerID, MCSessionState state)
+			{
+				switch (state) {
+				case MCSessionState.Connected:
+					Console.WriteLine ("Connected: {0}", peerID.DisplayName);
+					break;
+				case MCSessionState.Connecting:
+					Console.WriteLine ("Connecting: {0}", peerID.DisplayName);
+					break;
+				case MCSessionState.NotConnected:
+					Console.WriteLine ("Not Connected: {0}", peerID.DisplayName);
+					break;
+				}
+			}
+
+			public override void DidReceiveData (MCSession session, NSData data, MCPeerID peerID)
+			{
+				InvokeOnMainThread (() => {
+					var alert = new UIAlertView ("", data.ToString (), null, "OK");
+					alert.Show ();
+				});
+			}
+
+			public override void DidStartReceivingResource (MCSession session, string resourceName, MCPeerID fromPeer, NSProgress progress)
+			{
+			}
+
+			public override void DidFinishReceivingResource (MCSession session, string resourceName, MCPeerID formPeer, NSUrl localUrl, out NSError error)
+			{
+				error = null;
+			}
+
+			public override void DidReceiveStream (MCSession session, NSInputStream stream, string streamName, MCPeerID peerID)
+			{
+			}
+		}
+
+		class MyBrowserDelegate : MCBrowserViewControllerDelegate
+		{
+			public override void DidFinish (MCBrowserViewController browserViewController)
+			{
+				InvokeOnMainThread (() => {
+					browserViewController.DismissViewController (true, null);
+				});
+			}
+
+			public override void WasCancelled (MCBrowserViewController browserViewController)
+			{
+				InvokeOnMainThread (() => {
+					browserViewController.DismissViewController (true, null);
+				});
+			}
+		}
+		#endregion
 
 		class BTPeripheralDelegate : CBPeripheralManagerDelegate
 		{
