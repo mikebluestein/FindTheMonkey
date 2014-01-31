@@ -225,7 +225,7 @@ namespace FindTheMonkey
 			{
 			}
 
-			public override void DidFinishReceivingResource (MCSession session, string resourceName, MCPeerID formPeer, NSUrl localUrl, out NSError error)
+			public override void DidFinishReceivingResource (MCSession session, string resourceName, MCPeerID formPeer, NSUrl localUrl, NSError error)
 			{
 				error = null;
 			}
