@@ -6,4 +6,4 @@ This is a small application that demonstrates how to use iBeacon (with Xamarin) 
 
 License:
 
-This code is licensed under the terms of the MIT/X11 license.
+This code is licensed under the terms of the MIT license.
