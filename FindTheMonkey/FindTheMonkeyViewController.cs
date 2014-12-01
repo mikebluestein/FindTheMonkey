@@ -70,6 +70,8 @@ namespace FindTheMonkey
 
 				locationMgr = new CLLocationManager ();
 
+                locationMgr.RequestWhenInUseAuthorization ();
+
 				locationMgr.RegionEntered += (object sender, CLRegionEventArgs e) => {
 					if (e.Region.Identifier == monkeyId) {
 						UILocalNotification notification = new UILocalNotification () { AlertBody = "There's a monkey hiding nearby!" };

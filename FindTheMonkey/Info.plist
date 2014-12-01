@@ -25,12 +25,14 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>MinimumOSVersion</key>
-	<string>7.0</string>
+	<string>8.0</string>
 	<key>CFBundleIconFiles</key>
 	<array>
 		<string>Icon-60@2x</string>
 		<string>Icon-76@2x</string>
 		<string>Icon-76</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Find the Monkey is using iBeacons</string>
 </dict>
 </plist>
