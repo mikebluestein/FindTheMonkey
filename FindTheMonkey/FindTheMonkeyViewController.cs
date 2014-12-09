@@ -23,11 +23,15 @@ namespace FindTheMonkey
 		BTPeripheralDelegate peripheralDelegate;
 		CLLocationManager locationMgr;
 		CLProximity previousProximity;
+        CLBeaconRegion beaconRegion;
+        NSMutableDictionary peripheralData;
 		float volume = 0.5f;
 		float pitch = 1.0f;
 
 		public FindTheMonkeyViewController () : base (UserInterfaceIdiomIsPhone ? "FindTheMonkeyViewController_iPhone" : "FindTheMonkeyViewController_iPad", null)
 		{
+            peripheralDelegate = new BTPeripheralDelegate ();
+            peripheralMgr = new CBPeripheralManager (peripheralDelegate, DispatchQueue.DefaultGlobalQueue);
 		}
 
 		public override void DidReceiveMemoryWarning ()
@@ -48,23 +52,13 @@ namespace FindTheMonkey
 			}
 
 			var monkeyUUID = new NSUuid (uuid);
-			var beaconRegion = new CLBeaconRegion (monkeyUUID, monkeyId);
+			beaconRegion = new CLBeaconRegion (monkeyUUID, monkeyId);
 
 			beaconRegion.NotifyEntryStateOnDisplay = true;
 			beaconRegion.NotifyOnEntry = true;
 			beaconRegion.NotifyOnExit = true;
 
-			if (!UserInterfaceIdiomIsPhone) {
-
-				//power - the received signal strength indicator (RSSI) value (measured in decibels) of the beacon from one meter away
-				var power = new NSNumber (-59);
-				NSMutableDictionary peripheralData = beaconRegion.GetPeripheralData (power);
-				peripheralDelegate = new BTPeripheralDelegate ();
-				peripheralMgr = new CBPeripheralManager (peripheralDelegate, DispatchQueue.DefaultGlobalQueue);
-
-				peripheralMgr.StartAdvertising (peripheralData);
-
-			} else {
+			if (UserInterfaceIdiomIsPhone) {
 
 				InitPitchAndVolume ();
 
@@ -123,6 +117,19 @@ namespace FindTheMonkey
 				locationMgr.StartRangingBeacons (beaconRegion);
 			}
 		}
+
+        public override void ViewDidAppear (bool animated)
+        {
+            base.ViewDidAppear (animated);
+
+            if (!UserInterfaceIdiomIsPhone) {
+
+                //power - the received signal strength indicator (RSSI) value (measured in decibels) of the beacon from one meter away
+                var power = new NSNumber (-59);
+                peripheralData = beaconRegion.GetPeripheralData (power);
+                peripheralMgr.StartAdvertising (peripheralData);
+            } 
+        }
 
 		void Speak (string text)
 		{
